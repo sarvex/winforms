@@ -399,7 +399,7 @@ namespace System.Windows.Forms
                 needVscroll = true;
             }
 
-            bool defaultLayoutEngine = (LayoutEngine == DefaultLayout.Instance);
+            bool defaultLayoutEngine = LayoutEngine.IsDefaultEngine();
             if (!defaultLayoutEngine && CommonProperties.HasLayoutBounds(this))
             {
                 Size layoutBounds = CommonProperties.GetLayoutBounds(this);

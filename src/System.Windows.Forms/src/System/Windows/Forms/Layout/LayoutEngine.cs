@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Drawing;
+using System.Windows.Forms.Primitives;
 
 namespace System.Windows.Forms.Layout
 {
@@ -47,6 +48,11 @@ namespace System.Windows.Forms.Layout
         private protected virtual bool LayoutCore(IArrangedElement container, LayoutEventArgs layoutEventArgs)
         {
             return false;
+        }
+
+        internal bool IsDefaultEngine()
+        {
+            return LocalAppContextSwitches.UseAnchorLayout ? this == AnchorLayout.s_instance : this == DefaultLayout.Instance;
         }
     }
 }

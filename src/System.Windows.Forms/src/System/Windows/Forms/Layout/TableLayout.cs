@@ -695,7 +695,7 @@ namespace System.Windows.Forms.Layout
 
             if (dontHonorConstraint && (proposedConstraints.Width < short.MaxValue))
             {
-                if (containerInfo.Container is TableLayoutPanel tlp && tlp.ParentInternal is not null && tlp.ParentInternal.LayoutEngine == DefaultLayout.Instance)
+                if (containerInfo.Container is TableLayoutPanel tlp && tlp.ParentInternal is not null && tlp.ParentInternal.LayoutEngine.IsDefaultEngine())
                 {
                     if (tlp.Dock == DockStyle.Top || tlp.Dock == DockStyle.Bottom || tlp.Dock == DockStyle.Fill)
                     {
@@ -821,7 +821,7 @@ namespace System.Windows.Forms.Layout
 
             if (dontHonorConstraint && (proposedConstraints.Height < short.MaxValue))
             {
-                if (containerInfo.Container is TableLayoutPanel tlp && tlp.ParentInternal is not null && tlp.ParentInternal.LayoutEngine == DefaultLayout.Instance)
+                if (containerInfo.Container is TableLayoutPanel tlp && tlp.ParentInternal is not null && tlp.ParentInternal.LayoutEngine.IsDefaultEngine())
                 {
                     if (tlp.Dock == DockStyle.Left || tlp.Dock == DockStyle.Right || tlp.Dock == DockStyle.Fill)
                     {

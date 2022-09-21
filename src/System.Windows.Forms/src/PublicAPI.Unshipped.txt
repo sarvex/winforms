@@ -4,3 +4,5 @@ System.Windows.Forms.ControlAnchors.ControlAnchors(int? left, int? top, int? rig
 System.Windows.Forms.ControlAnchors.Left -> int?
 System.Windows.Forms.ControlAnchors.Right -> int?
 System.Windows.Forms.ControlAnchors.Top -> int?
+virtual System.Windows.Forms.Control.Anchors.get -> System.Windows.Forms.ControlAnchors?
+virtual System.Windows.Forms.Control.Anchors.set -> void

@@ -46,6 +46,15 @@ namespace System.Windows.Forms.Primitives
             get => GetCachedSwitchValue(ImprovedAnchorLayout2, ref s_ImprovedAnchorLayout2);
         }
 
+        private const string AnchorLayoutString = "System.Windows.Forms.UseAnchorLayout";
+
+        private static int s_UseAnchorLayout;
+        public static bool UseAnchorLayout
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => GetCachedSwitchValue(AnchorLayoutString, ref s_UseAnchorLayout);
+        }
+
         private static readonly FrameworkName? s_targetFrameworkName = GetTargetFrameworkName();
 
         private static readonly bool s_isNetCoreApp = (s_targetFrameworkName?.Identifier) == ".NETCoreApp";

@@ -777,6 +777,10 @@ namespace System.Windows.Forms
         private void SetAnchors(ControlAnchors? value)
         {
             _anchors = value;
+            if (LocalAppContextSwitches.UseAnchorLayout)
+            {
+                CommonProperties.xSetAnchors(this, value);
+            }
         }
 
         [SRCategory(nameof(SR.CatLayout))]
@@ -800,7 +804,7 @@ namespace System.Windows.Forms
                         // DefaultLayout does not keep anchor information until it needs to.  When
                         // AutoSize became a common property, we could no longer blindly call into
                         // DefaultLayout, so now we do a special InitLayout just for DefaultLayout.
-                        if (value && ParentInternal.LayoutEngine == DefaultLayout.Instance)
+                        if (value && ParentInternal.LayoutEngine.IsDefaultEngine())
                         {
                             ParentInternal.LayoutEngine.InitLayout(this, BoundsSpecified.Size);
                         }
@@ -857,7 +861,7 @@ namespace System.Windows.Forms
         // Public because this is interesting for ControlDesigners.
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Advanced)]
-        public virtual LayoutEngine LayoutEngine => DefaultLayout.Instance;
+        public virtual LayoutEngine LayoutEngine => LocalAppContextSwitches.UseAnchorLayout ? AnchorLayout.s_instance : DefaultLayout.Instance;
 
         /// <summary>
         ///  The GDI brush for our background color.
@@ -961,6 +965,8 @@ namespace System.Windows.Forms
 
         private void ResetDataContext()
             => Properties.RemoveObject(s_dataContextProperty);
+
+        internal bool DpiScaleInProgress = false;
 
         /// <summary>
         ///  The background color of this control. This is an ambient property and
@@ -8733,13 +8739,22 @@ namespace System.Windows.Forms
                 Invalidate();
             }
 
-            if (LocalAppContextSwitches.OptImprovedAnchorLayout2 && Parent is null && TopLevelControl != this)
+            if (!DpiScaleInProgress)
             {
                 foreach (Control child in Controls)
                 {
                     LayoutEngine.InitLayout(child, BoundsSpecified.Size);
                 }
             }
+
+            /*
+                        if (LocalAppContextSwitches.OptImprovedAnchorLayout2 && Parent is null && TopLevelControl != this)
+                        {
+                            foreach (Control child in Controls)
+                            {
+                                LayoutEngine.InitLayout(child, BoundsSpecified.Size);
+                            }
+                        }*/
 
             LayoutTransaction.DoLayout(this, this, PropertyNames.Bounds);
             ((EventHandler?)Events[s_resizeEvent])?.Invoke(this, e);
@@ -10705,10 +10720,17 @@ namespace System.Windows.Forms
             Size scaledSize = LayoutUtils.IntersectSizes(rawScaledBounds.Size, maximumSize);
             scaledSize = LayoutUtils.UnionSizes(scaledSize, minSize);
 
-            if (DpiHelper.IsScalingRequirementMet && (ParentInternal is not null) && (ParentInternal.LayoutEngine == DefaultLayout.Instance))
+            if (DpiHelper.IsScalingRequirementMet && (ParentInternal is not null) && (ParentInternal.LayoutEngine.IsDefaultEngine()))
             {
                 // We need to scale AnchorInfo to update distances to container edges
-                DefaultLayout.ScaleAnchorInfo((IArrangedElement)this, factor);
+                if (LocalAppContextSwitches.UseAnchorLayout)
+                {
+                    AnchorLayout.ScaleAnchorInfo(this, factor);
+                }
+                else
+                {
+                    DefaultLayout.ScaleAnchorInfo(this, factor);
+                }
             }
 
             // Set in the scaled bounds as constrained by the newly scaled min/max size.
