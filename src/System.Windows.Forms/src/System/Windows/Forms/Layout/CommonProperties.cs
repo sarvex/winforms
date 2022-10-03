@@ -596,6 +596,8 @@ namespace System.Windows.Forms.Layout
 
         internal static void xSetAnchors(IArrangedElement element, ControlAnchors? value)
         {
+            throw new NotImplementedException();
+            /*
             BitVector32 state = GetLayoutState(element);
 
             // We translate DefaultAnchor to zero - see the _dockAndAnchorNeedsLayoutSection section above.
@@ -605,7 +607,7 @@ namespace System.Windows.Forms.Layout
             SetLayoutState(element, state);
 
             Debug.Assert(GetLayoutState(element)[_dockModeSection] == (int)DockAnchorMode.Anchor,
-                "xSetAnchor did not set mode to Anchor.");
+                "xSetAnchor did not set mode to Anchor.");*/
         }
 
         ///  xSetDock

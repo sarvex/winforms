@@ -672,7 +672,7 @@ namespace System.Windows.Forms.Layout
                 AnchorStyles anchor = GetAnchor(element);
                 if (IsAnchored(anchor, AnchorStyles.Right))
                 {
-                    if (DpiHelper.IsScalingRequirementMet && (anchorInfo.Right - parentWidth > 0) && (oldAnchorInfo.Right < 0) &&  false)
+                    if (DpiHelper.IsScalingRequirementMet && (anchorInfo.Right - parentWidth > 0) && (oldAnchorInfo.Right < 0))
                     {
                         // Parent was resized to fit its parent, or screen, we need to reuse old anchor info to prevent losing control beyond right edge.
                         anchorInfo.Right = oldAnchorInfo.Right;
@@ -700,7 +700,7 @@ namespace System.Windows.Forms.Layout
 
                 if (IsAnchored(anchor, AnchorStyles.Bottom))
                 {
-                    if (DpiHelper.IsScalingRequirementMet && (anchorInfo.Bottom - parentHeight > 0) && (oldAnchorInfo.Bottom < 0) && false)
+                    if (DpiHelper.IsScalingRequirementMet && (anchorInfo.Bottom - parentHeight > 0) && (oldAnchorInfo.Bottom < 0))
                     {
                         // Parent was resized to fit its parent, or screen, we need to reuse old anchor info to prevent losing control beyond bottom edge.
                         anchorInfo.Bottom = oldAnchorInfo.Bottom;

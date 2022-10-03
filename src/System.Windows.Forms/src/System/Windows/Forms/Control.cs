@@ -777,10 +777,10 @@ namespace System.Windows.Forms
         private void SetAnchors(ControlAnchors? value)
         {
             _anchors = value;
-            if (LocalAppContextSwitches.UseAnchorLayout)
+         /*   if (LocalAppContextSwitches.UseAnchorLayout)
             {
                 CommonProperties.xSetAnchors(this, value);
-            }
+            }*/
         }
 
         [SRCategory(nameof(SR.CatLayout))]
@@ -966,7 +966,7 @@ namespace System.Windows.Forms
         private void ResetDataContext()
             => Properties.RemoveObject(s_dataContextProperty);
 
-        internal bool DpiScaleInProgress = false;
+        internal bool DpiScaleInProgress;
 
         /// <summary>
         ///  The background color of this control. This is an ambient property and
@@ -4766,7 +4766,7 @@ namespace System.Windows.Forms
             SetState(States.CheckedHost, false);
             if (ParentInternal is not null)
             {
-                if (!LocalAppContextSwitches.OptImprovedAnchorLayout || !ParentInternal.IsLayoutSuspended)
+               // if (!LocalAppContextSwitches.OptImprovedAnchorLayout || !ParentInternal.IsLayoutSuspended)
                 {
                     ParentInternal.LayoutEngine.InitLayout(this, BoundsSpecified.All);
                 }
@@ -8007,6 +8007,10 @@ namespace System.Windows.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected virtual void OnCreateControl()
         {
+            if(IsHandleCreated && ParentInternal is not null && ParentInternal.IsHandleCreated)
+            {
+                LayoutEngine.UpdateAnchors(this);
+            }
         }
 
         /// <summary>
@@ -8727,6 +8731,8 @@ namespace System.Windows.Forms
             }
         }
 
+        internal bool ResizeFromAnchors;
+
         /// <summary>
         ///  Raises the <see cref="Resize"/> event.
         /// </summary>
@@ -8739,8 +8745,13 @@ namespace System.Windows.Forms
                 Invalidate();
             }
 
-            if (!DpiScaleInProgress)
+            if (LocalAppContextSwitches.UseAnchorLayout && !DpiScaleInProgress)
             {
+                if (!ResizeFromAnchors)
+                {
+                    LayoutEngine.UpdateAnchors(this);
+                }
+
                 foreach (Control child in Controls)
                 {
                     LayoutEngine.InitLayout(child, BoundsSpecified.Size);
@@ -8748,13 +8759,22 @@ namespace System.Windows.Forms
             }
 
             /*
-                        if (LocalAppContextSwitches.OptImprovedAnchorLayout2 && Parent is null && TopLevelControl != this)
+                        if (!DpiScaleInProgress)
                         {
                             foreach (Control child in Controls)
                             {
                                 LayoutEngine.InitLayout(child, BoundsSpecified.Size);
                             }
-                        }*/
+                        }
+            */
+
+            /*                     if (LocalAppContextSwitches.OptImprovedAnchorLayout2 && Parent is null && TopLevelControl != this)
+                                 {
+                                     foreach (Control child in Controls)
+                                     {
+                                         LayoutEngine.InitLayout(child, BoundsSpecified.Size);
+                                     }
+                                 }*/
 
             LayoutTransaction.DoLayout(this, this, PropertyNames.Bounds);
             ((EventHandler?)Events[s_resizeEvent])?.Invoke(this, e);
@@ -10329,10 +10349,10 @@ namespace System.Windows.Forms
             but we break things at every step.
 
             */
-            if (LocalAppContextSwitches.OptImprovedAnchorLayout1 && IsLayoutSuspended)
+         /*   if (LocalAppContextSwitches.OptImprovedAnchorLayout1 && IsLayoutSuspended)
             {
                 return;
-            }
+            }*/
 
             if (!performLayout)
             {

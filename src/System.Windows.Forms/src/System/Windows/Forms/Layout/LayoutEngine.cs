@@ -31,6 +31,10 @@ namespace System.Windows.Forms.Layout
             InitLayoutCore(CastToArrangedElement(child), specified);
         }
 
+        internal virtual void UpdateAnchors(IArrangedElement element)
+        {
+        }
+
         private protected virtual void InitLayoutCore(IArrangedElement element, BoundsSpecified bounds)
         {
         }

@@ -167,6 +167,12 @@ namespace System.Windows.Forms.Layout
                 return element.Bounds;
             }
 
+            if(control.Anchors is null)
+            {
+                Debug.WriteLine($"\t\t'{control}' anchors are nto computed yet");
+                return control.Bounds;
+            }
+
             int? x = control.Anchors!.Left;
             x ??= control.Bounds.Left;
             int width = control.Width;
@@ -668,6 +674,50 @@ namespace System.Windows.Forms.Layout
 
             Debug.Assert(GetDock(element) == value, "Error setting Dock value.");
         }*/
+
+        internal override void UpdateAnchors(IArrangedElement element)
+        {
+            base.UpdateAnchors(element);
+
+            if(element is Control control && control.IsHandleCreated)
+            {
+                Control? parent = control.ParentInternal;
+                if(parent is not null && parent.IsHandleCreated)
+                {
+                    ComputeAndUpdateAnchors(control);
+                }
+            }
+
+            static void ComputeAndUpdateAnchors(Control control)
+            {
+                control.Anchors = null;
+                Rectangle displayRect = control.ParentInternal!.DisplayRectangle;
+
+                int? left = null, top = null, right = null, bottom = null;
+
+                if ((control.Anchor & AnchorStyles.Left) == AnchorStyles.Left)
+                {
+                    left = control.Bounds.X;
+                }
+
+                if ((control.Anchor & AnchorStyles.Right) == AnchorStyles.Right)
+                {
+                    right = displayRect.Width - (left + control.Width);
+                }
+
+                if ((control.Anchor & AnchorStyles.Top) == AnchorStyles.Top)
+                {
+                    top = control.Bounds.Y;
+                }
+
+                if ((control.Anchor & AnchorStyles.Bottom) == AnchorStyles.Bottom)
+                {
+                    bottom = displayRect.Height - (top + control.Height);
+                }
+
+                control.Anchors = new ControlAnchors(left, top, right, bottom);
+            }
+        }
 
         public static void ScaleAnchorInfo(IArrangedElement element, SizeF factor)
         {
