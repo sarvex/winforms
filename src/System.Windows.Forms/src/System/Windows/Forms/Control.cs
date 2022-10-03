@@ -3508,7 +3508,26 @@ namespace System.Windows.Forms
         public Size Size
         {
             get => new Size(_width, _height);
-            set => SetBounds(_x, _y, value.Width, value.Height, BoundsSpecified.Size);
+            set
+            {
+                SetBounds(_x, _y, value.Width, value.Height, BoundsSpecified.Size);
+                UpdateAnchorsIfNeeded();
+            }
+        }
+
+        private void UpdateAnchorsIfNeeded()
+        {
+            if (!LocalAppContextSwitches.UseAnchorLayout || !CommonProperties.GetNeedsAnchorLayout(this))
+            {
+                return;
+            }
+
+            LayoutEngine.UpdateAnchors(this);
+
+            foreach (Control child in Controls)
+            {
+                LayoutEngine.InitLayout(child, BoundsSpecified.Size);
+            }
         }
 
         [SRCategory(nameof(SR.CatPropertyChanged))]
@@ -7957,6 +7976,8 @@ namespace System.Windows.Forms
                 eh(this, e);
             }
 
+            UpdateAnchorsIfNeeded();
+
             // Inform the control that the topmost control is now an ActiveX control
             if (TopMostParent.IsActiveX)
             {
@@ -8007,9 +8028,9 @@ namespace System.Windows.Forms
         [EditorBrowsable(EditorBrowsableState.Advanced)]
         protected virtual void OnCreateControl()
         {
-            if(IsHandleCreated && ParentInternal is not null && ParentInternal.IsHandleCreated)
+            if(Anchors is null)
             {
-                LayoutEngine.UpdateAnchors(this);
+                UpdateAnchorsIfNeeded();
             }
         }
 
@@ -8743,19 +8764,6 @@ namespace System.Windows.Forms
                 || GetState(States.ExceptionWhilePainting))
             {
                 Invalidate();
-            }
-
-            if (LocalAppContextSwitches.UseAnchorLayout && !DpiScaleInProgress)
-            {
-                if (!ResizeFromAnchors)
-                {
-                    LayoutEngine.UpdateAnchors(this);
-                }
-
-                foreach (Control child in Controls)
-                {
-                    LayoutEngine.InitLayout(child, BoundsSpecified.Size);
-                }
             }
 
             /*

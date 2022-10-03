@@ -168,7 +168,7 @@ namespace System.Windows.Forms.Layout
             }
 
             if(control.Anchors is null)
-            {
+            {                
                 Debug.WriteLine($"\t\t'{control}' anchors are nto computed yet");
                 return control.Bounds;
             }
@@ -186,6 +186,50 @@ namespace System.Windows.Forms.Layout
                 Debug.WriteLine($"\t\t'{element}' anchors resulted in negative bounds");
             }
 
+            if ((control.Anchor & AnchorStyles.Left) == AnchorStyles.Left)
+            {
+                if ((control.Anchor & AnchorStyles.Right) == AnchorStyles.Right)
+                {
+                    width = displayRect.Width - (control.Anchors!.Right!.Value + x.Value);
+                }
+            }
+            else
+            if ((control.Anchor & AnchorStyles.Right) == AnchorStyles.Right)
+            {
+                x = displayRect.Width - control.Width - control.Anchors!.Right!.Value;                
+            }
+            else
+            {
+                x = (int?)((int)control.Anchors!.Left! * (((float)displayRect.Width - control.Width) / (control.Anchors!.Left! + control.Anchors!.Right!)));
+            }
+
+            if ((control.Anchor & AnchorStyles.Top) == AnchorStyles.Top)
+            {
+                if ((control.Anchor & AnchorStyles.Bottom) == AnchorStyles.Bottom)
+                {
+                    height = displayRect.Height - (control.Anchors.Bottom!.Value + y.Value);
+                }
+            }
+            else if ((control.Anchor & AnchorStyles.Bottom) == AnchorStyles.Bottom)
+            {
+                y = displayRect.Height - control.Height - control.Anchors.Bottom!.Value;
+            }
+            else
+            {
+                y = (int?)((int)control.Anchors!.Top! * (((float)displayRect.Height - control.Height) / (control.Anchors!.Top! + control.Anchors!.Bottom!)));
+            }
+
+            if (x < 0)
+            {
+                x = 0;
+            }
+
+            if (y < 0)
+            {
+                y = 0;
+            }
+
+            /*
             if (control.Anchors.Left is not null)
             {
                 if (control.Anchors.Right is not null)
@@ -201,6 +245,10 @@ namespace System.Windows.Forms.Layout
                 {
                     x =0;
                 }
+            }
+            else
+            {
+                x = (int?)((int)control.Anchors!.Left! * (((float)displayRect.Width - control.Width) / (control.Anchors!.Left! + control.Anchors!.Right!)));
             }
 
             if (control.Anchors.Top is not null)
@@ -218,71 +266,75 @@ namespace System.Windows.Forms.Layout
                     y = 0;
                 }
             }
-
-/*
-            if (!measureOnly)
-            {
-                // the size is actually zero, set the width and heights appropriately.
-                if (width < 0)
-                {
-                    width = 0;
-                }
-
-                if (height < 0)
-                {
-                    height = 0;
-                }
-            }
             else
             {
-                Rectangle cachedBounds = GetCachedBounds(element);
-                // in this scenario we've likely been passed a 0 sized display rectangle to determine our height.
-                // we will need to translate the right and bottom edges as necessary to the positive plane.
-
-                // right < left means the control is anchored both left and right.
-                // cachedBounds != element.Bounds means  the element's size has changed
-                // any, all, or none of these can be true.
-                if (right < left || cachedBounds.Width != element.Bounds.Width || cachedBounds.X != element.Bounds.X)
-                {
-                    if (cachedBounds != element.Bounds)
-                    {
-                        left = Math.Max(Math.Abs(left), Math.Abs(cachedBounds.Left));
-                    }
-
-                    right = left + Math.Max(element.Bounds.Width, cachedBounds.Width) + Math.Abs(right);
-                }
-                else
-                {
-                    left = left > 0 ? left : element.Bounds.Left;
-                    right = right > 0 ? right : element.Bounds.Right + Math.Abs(right);
-                }
-
-                // bottom < top means the control is anchored both top and bottom.
-                // cachedBounds != element.Bounds means  the element's size has changed
-                // any, all, or none of these can be true.
-                if (bottom < top || cachedBounds.Height != element.Bounds.Height || cachedBounds.Y != element.Bounds.Y)
-                {
-                    if (cachedBounds != element.Bounds)
-                    {
-                        top = Math.Max(Math.Abs(top), Math.Abs(cachedBounds.Top));
-                    }
-
-                    bottom = top + Math.Max(element.Bounds.Height, cachedBounds.Height) + Math.Abs(bottom);
-                }
-                else
-                {
-                    top = top > 0 ? top : element.Bounds.Top;
-                    bottom = bottom > 0 ? bottom : element.Bounds.Bottom + Math.Abs(bottom);
-                }
+                y = (int?)((int)control.Anchors!.Top! * (((float)displayRect.Height - control.Height) / (control.Anchors!.Top! + control.Anchors!.Bottom!)));
             }
+            */
+            /*
+                        if (!measureOnly)
+                        {
+                            // the size is actually zero, set the width and heights appropriately.
+                            if (width < 0)
+                            {
+                                width = 0;
+                            }
 
-            Debug.WriteLineIf(CompModSwitches.RichLayout.TraceInfo, "\t\t...new anchor dim (l,t,r,b) {"
-                                                                      + (left)
-                                                                      + ", " + (top)
-                                                                      + ", " + (right)
-                                                                      + ", " + (bottom)
-                                                                      + "}");
-*/
+                            if (height < 0)
+                            {
+                                height = 0;
+                            }
+                        }
+                        else
+                        {
+                            Rectangle cachedBounds = GetCachedBounds(element);
+                            // in this scenario we've likely been passed a 0 sized display rectangle to determine our height.
+                            // we will need to translate the right and bottom edges as necessary to the positive plane.
+
+                            // right < left means the control is anchored both left and right.
+                            // cachedBounds != element.Bounds means  the element's size has changed
+                            // any, all, or none of these can be true.
+                            if (right < left || cachedBounds.Width != element.Bounds.Width || cachedBounds.X != element.Bounds.X)
+                            {
+                                if (cachedBounds != element.Bounds)
+                                {
+                                    left = Math.Max(Math.Abs(left), Math.Abs(cachedBounds.Left));
+                                }
+
+                                right = left + Math.Max(element.Bounds.Width, cachedBounds.Width) + Math.Abs(right);
+                            }
+                            else
+                            {
+                                left = left > 0 ? left : element.Bounds.Left;
+                                right = right > 0 ? right : element.Bounds.Right + Math.Abs(right);
+                            }
+
+                            // bottom < top means the control is anchored both top and bottom.
+                            // cachedBounds != element.Bounds means  the element's size has changed
+                            // any, all, or none of these can be true.
+                            if (bottom < top || cachedBounds.Height != element.Bounds.Height || cachedBounds.Y != element.Bounds.Y)
+                            {
+                                if (cachedBounds != element.Bounds)
+                                {
+                                    top = Math.Max(Math.Abs(top), Math.Abs(cachedBounds.Top));
+                                }
+
+                                bottom = top + Math.Max(element.Bounds.Height, cachedBounds.Height) + Math.Abs(bottom);
+                            }
+                            else
+                            {
+                                top = top > 0 ? top : element.Bounds.Top;
+                                bottom = bottom > 0 ? bottom : element.Bounds.Bottom + Math.Abs(bottom);
+                            }
+                        }
+
+                        Debug.WriteLineIf(CompModSwitches.RichLayout.TraceInfo, "\t\t...new anchor dim (l,t,r,b) {"
+                                                                                  + (left)
+                                                                                  + ", " + (top)
+                                                                                  + ", " + (right)
+                                                                                  + ", " + (bottom)
+                                                                                  + "}");
+            */
             return new Rectangle(x!.Value, y!.Value, width, height);
         }
 
@@ -693,27 +745,39 @@ namespace System.Windows.Forms.Layout
                 control.Anchors = null;
                 Rectangle displayRect = control.ParentInternal!.DisplayRectangle;
 
-                int? left = null, top = null, right = null, bottom = null;
+                int x = control.Bounds.X;
+                int y = control.Bounds.Y;
+                int width = control.Bounds.Width;
+                int height = control.Bounds.Height;
+
+                int left = x, top = y, right, bottom;
+
+                right = displayRect.Width - (x + control.Width);
+                bottom = displayRect.Height - (y + control.Height);
+
+                /*
+                int left = null, top = null, right = null, bottom = null;
 
                 if ((control.Anchor & AnchorStyles.Left) == AnchorStyles.Left)
                 {
-                    left = control.Bounds.X;
+                    left = x;
                 }
 
                 if ((control.Anchor & AnchorStyles.Right) == AnchorStyles.Right)
                 {
-                    right = displayRect.Width - (left + control.Width);
+                    right = displayRect.Width - (x + control.Width);
                 }
 
                 if ((control.Anchor & AnchorStyles.Top) == AnchorStyles.Top)
                 {
-                    top = control.Bounds.Y;
+                    top = y;
                 }
 
                 if ((control.Anchor & AnchorStyles.Bottom) == AnchorStyles.Bottom)
                 {
-                    bottom = displayRect.Height - (top + control.Height);
+                    bottom = displayRect.Height - (y + control.Height);
                 }
+                */
 
                 control.Anchors = new ControlAnchors(left, top, right, bottom);
             }
